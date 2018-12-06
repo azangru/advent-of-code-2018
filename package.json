@@ -25,6 +25,7 @@
     "jest": "23.6.0"
   },
   "dependencies": {
+    "dedent": "0.7.0",
     "ramda": "0.26.1"
   }
 }
