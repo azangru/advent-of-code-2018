@@ -8,7 +8,8 @@ import {
   filter,
   uniq,
   compose,
-  without
+  without,
+  flatten
 } from 'ramda';
 
 export function calculateLargestArea(input) {
@@ -18,6 +19,18 @@ export function calculateLargestArea(input) {
   fillGrid(grid, coordinates);
   const coordinatesWithFiniteAreas = filterInfiteAreas(grid, coordinates);
   return findLargestFiniteArea(grid, coordinatesWithFiniteAreas);
+}
+
+export function findAreaConnectedToAllGivenCoordinates(input, distance) {
+  const coordinates = parseData(input);
+  const [ gridWidth, gridHeight ] = getGridDimensions(coordinates);
+  const grid = createGrid(gridWidth, gridHeight);
+  fillGridAlternate(grid, coordinates, distance);
+
+  const areaSize = flatten(grid).reduce((result, item) => {
+    return item ? result + 1 : result;
+  }, 0);
+  return areaSize;
 }
 
 // the input is an array of strings, each string representing the x and the y coordinates
@@ -44,11 +57,23 @@ function createGrid(width, height) {
     .map(() => [...Array(height + 1)]);
 }
 
+// fills grid on the basis of which of the given coordinates
+// each individual cell is the closest to
 function fillGrid(grid, coordinates) {
   for (let x of range(0, grid.length)) { // columns
     for (let y of range(0, grid[0].length)) { // rows
       const coordinateId = getClosestCoordinate([x, y], coordinates);
       grid[x][y] = coordinateId;
+    }
+  }
+}
+
+// marks as true the cells of the grid whose Manhattan distance to all given coordinates
+// is less than the provided maximum distance
+function fillGridAlternate(grid, coordinates, maxDistance) {
+  for (let x of range(0, grid.length)) { // columns
+    for (let y of range(0, grid[0].length)) { // rows
+      grid[x][y] = isWithinDistance([x, y], coordinates, maxDistance);
     }
   }
 }
@@ -71,6 +96,14 @@ function getClosestCoordinate(current, coordinates) {
 
   const isEquidistant = sampled[0][1] === sampled[1][1];
   return isEquidistant ? null : sampled[0][0]; // return either the index of the closest coordinate or a null as a filler
+}
+
+function isWithinDistance(location, coordinates, maxTotalDistance) {
+  const totalDistance = coordinates.reduce((result, coordinate) => {
+    return result + findManhattanDistance(location, coordinate);
+  }, 0);
+
+  return totalDistance < maxTotalDistance;
 }
 
 function findManhattanDistance(coordinate1, coordinate2) {
