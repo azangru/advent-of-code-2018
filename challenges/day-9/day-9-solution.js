@@ -13,7 +13,7 @@ const game2 = {
 };
 
 function solvePuzzle() {
-  // console.log('Solution to the first part of day 8 is', findWinningScore(game1));
+  console.log('Solution to the first part of day 8 is', findWinningScore(game1));
   console.log('Solution to the first part of day 8 is', findWinningScore(game2));
 }
 

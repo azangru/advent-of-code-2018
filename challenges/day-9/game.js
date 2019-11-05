@@ -1,10 +1,12 @@
-import { range, insert } from 'ramda';
+import { range } from 'ramda';
+
+import Circle from './circle';
 
 class Game {
 
   constructor({ numPlayers, lastMarbleScore }) {
     this.scoreboard = this.generateScoreboard(numPlayers);
-    this.marbles = this.generateMarbles(lastMarbleScore);
+    this.marblesCount = lastMarbleScore;
     this.numPlayers = numPlayers;
   }
 
@@ -16,65 +18,20 @@ class Game {
       }, new Map());
   }
 
-  generateMarbles(lastMarbleScore) {
-    return range(0, lastMarbleScore + 1);
-  }
-
   play() {
-    let circle = [], lastAddedIndex;
+    let circle = new Circle();
     let currentPlayer = 0;
 
-    for (let marble of this.marbles) {
-      const step = this.addMarble(circle, lastAddedIndex, marble);
-      circle = step.circle;
-      lastAddedIndex = step.lastAddedIndex;
+    circle.add(0);
+    for (let marble = 1; marble < this.marblesCount + 1; marble++) {
+      const moveScore = circle.add(marble);
 
       currentPlayer = (currentPlayer + 1) % this.numPlayers !== 0 ?
         (currentPlayer + 1) % this.numPlayers : this.numPlayers;
-      if (step.score) {
-        const prevScore = this.scoreboard.get(currentPlayer);
-        this.scoreboard.set(currentPlayer, prevScore + step.score);
-      }
-    }
-  }
 
-  addMarble(circle, lastAddedIndex, marble) {
-    if (!circle.length) {
-      return {
-        circle: [marble],
-        lastAddedIndex: 0
-      };
-    } else if (marble % 23 === 0) {
-      const indexOfCounterclockwiseMarble = this.findIndexOfCouterclockwiseMarble(circle, lastAddedIndex);
-      const removedCounterclockwiseMarble = circle[indexOfCounterclockwiseMarble];
-      const newCircle = [
-        ...circle.slice(0, indexOfCounterclockwiseMarble),
-        ...circle.slice(indexOfCounterclockwiseMarble + 1)
-      ];
-      return {
-        circle: newCircle,
-        lastAddedIndex: indexOfCounterclockwiseMarble,
-        score: marble + removedCounterclockwiseMarble
-      };
-    } else {
-      let newIndex = (lastAddedIndex + 2) % circle.length;
-      if (newIndex === 0) {
-        newIndex = circle.length;
-      }
-      const newCircle = insert(newIndex, marble, circle);
-      return {
-        circle: newCircle,
-        lastAddedIndex: newIndex
-      };
+      const prevScore = this.scoreboard.get(currentPlayer);
+      this.scoreboard.set(currentPlayer, prevScore + moveScore);
     }
-  }
-
-  findIndexOfCouterclockwiseMarble(circle, lastAddedIndex) {
-    let result = lastAddedIndex - 7;
-    if (result < 0) {
-      result = circle.length + result;
-    }
-    return result;
   }
 
   getMaximumScore() {
