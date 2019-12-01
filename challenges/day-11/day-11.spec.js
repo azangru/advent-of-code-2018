@@ -1,6 +1,6 @@
 import { calculateCellPower } from './power-calculator';
 import { buildGrid } from './build-grid';
-import { findMaxSquare } from './day-11';
+import { findMaxSquare, findArbitraryMaxSquare } from './day-11';
 
 describe('calculateCellPower', () => {
 
@@ -21,6 +21,29 @@ describe('findMaxSquare', () => {
 
     const withSerial42 = buildGrid(42);
     expect(findMaxSquare(withSerial42)).toEqual({ x: 21, y: 61, sum: 30 });
+  });
+
+});
+
+describe('findArbitraryMaxSquare', () => {
+
+  const example1 = [
+    [-2,  -4,   4,   4,   4],
+    [-4,   4,   4,   4,  -5],
+    [4,   3,   3,   4,  -4],
+    [1,   1,   2,   4,  -3],
+    [-1,  0,   2,  -5,  -2]
+  ];
+
+  test('works with example 1', () => {
+    expect(findArbitraryMaxSquare(example1)).toEqual({ x: 1, y: 1, sum: 32, size: 4 });
+  });
+
+  test('finds square with the largest power', () => {
+    // const withSerial18 = buildGrid(18);
+    const withSerial42 = buildGrid(42);
+    // expect(findArbitraryMaxSquare(withSerial18)).toEqual({ x: 90, y: 269, sum: 113, size: 16 });
+    expect(findArbitraryMaxSquare(withSerial42)).toEqual({ x: 232, y: 251, sum: 119, size: 12 });
   });
 
 });
